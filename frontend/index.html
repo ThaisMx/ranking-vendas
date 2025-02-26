@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ranking de Vendas</title>
+    <!-- Import das fontes (Bebas Neue e Montserrat) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="particles"></div>
+    <!-- HEADER -->
+    <header class="ranking-header">
+      <div class="header-content">
+        <h1>RANKING DE VENDAS</h1>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+      <!-- CONTAINER PRINCIPAL (Podium + Lista) -->
+      <div class="ranking-container">
+        <!-- SEÇÃO DO PÓDIUM (TOP 3) -->
+        <section class="podium-section">
+          <!-- BLOCO DE INFORMAÇÕES (Total Time, Total Top3, Contagem) -->
+          <div class="podium-stats">
+            <div class="stats-item">
+              <span class="stats-label">TOTAL DO TIME:</span>
+              <span class="stats-value" id="total-time">R$ 91.120,00</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">TOTAL TOP 3:</span>
+              <span class="stats-value" id="total-top3">R$ 70.000,00</span>
+            </div>
+            <div class="stats-item time-remaining">
+              <div class="clock-icon"></div>
+              <span id="countdown">00:00:00</span>
+            </div>
+          </div>
+
+          <!-- Cartões do Pódio -->
+          <div class="podium-cards">
+            <!-- 2º LUGAR -->
+            <div class="podium-card second-place">
+              <!-- Medalha de 2º lugar -->
+              <div class="position">
+                <img
+                  src="https://img.icons8.com/emoji/48/2nd-place-medal-emoji.png"
+                  alt="Medalha 2º lugar"
+                  class="medal"
+                />
+              </div>
+              <div class="avatar">
+                <img src="fotos/Robert.jpeg" alt="Robert" />
+              </div>
+              <h2>Robert</h2>
+              <p class="score">Faturamento: R$ 18.000,00</p>
+              <p class="score">Vendas: 120</p>
+            </div>
+
+            <!-- 1º LUGAR (mais alto) -->
+            <div class="podium-card first-place">
+              <!-- Coroa flutuando -->
+              <img
+                src="https://img.icons8.com/?size=100&id=oQZiODxTvE5b&format=png"
+                alt="Coroa"
+                class="crown"
+              />
+              <!-- Medalha de 1º lugar -->
+              <div class="position">
+                <img
+                  src="https://img.icons8.com/emoji/96/1st-place-medal-emoji.png"
+                  alt="Medalha 1º lugar"
+                  class="medal"
+                />
+              </div>
+              <div class="avatar">
+                <img src="fotos/Gabriela Sales.jpg" alt="Gabriela" />
+              </div>
+              <h2>Gabriela</h2>
+              <p class="score">Faturamento: <br> R$ 25.000,00</p>
+              <p class="score">Vendas: 150</p>
+            </div>
+
+            <!-- 3º LUGAR -->
+            <div class="podium-card third-place">
+              <!-- Medalha de 3º lugar -->
+              <div class="position">
+                <img
+                  src="https://img.icons8.com/emoji/48/3rd-place-medal-emoji.png"
+                  alt="Medalha 3º lugar"
+                  class="medal"
+                />
+              </div>
+              <div class="avatar">
+                <img src="fotos/Reginaldo.png" alt="Reginaldo" />
+              </div>
+              <h2>Reginaldo</h2>
+              <p class="score">Faturamento: <br> R$ 15.000,00</p>
+              <p class="score">Vendas: 110</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEÇÃO DA LISTA (LATERAL) -->
+        <section class="leaderboard-section">
+          <h2 class="leaderboard-title">LISTA GERAL</h2>
+
+          <!-- 1. Gabriela -->
+          <div class="leaderboard-item">
+            <span class="ranking-position">1</span>
+            <img class="foto-vendedor" src="fotos/Gabriela Sales.jpg" alt="Gabriela" />
+            <div class="info-vendedor">
+              <span class="nome-vendedor">Gabriela</span>
+              <div class="progress-bar">
+                <!-- 100% da meta (25 mil) -->
+                <div
+                  class="progress"
+                  style="width: 100%;"
+                  data-percent="100%"
+                ></div>
+              </div>
+              <span class="faturamento">Faturamento: <br> R$ 25.000,00</span>
+              <span class="ticket-medio">Ticket Médio: R$ 167</span>
+            </div>
+          </div>
+
+          <!-- 2. Robert -->
+          <div class="leaderboard-item">
+            <span class="ranking-position">2</span>
+            <img class="foto-vendedor" src="fotos/Robert.jpeg" alt="Robert" />
+            <div class="info-vendedor">
+              <span class="nome-vendedor">Robert</span>
+              <div class="progress-bar">
+                <!-- 72% da meta -->
+                <div
+                  class="progress"
+                  style="width: 72%;"
+                  data-percent="72%"
+                ></div>
+              </div>
+              <span class="faturamento">Faturamento: R$ 18.000,00</span>
+              <span class="ticket-medio">Ticket Médio: R$ 150</span>
+            </div>
+          </div>
+
+          <!-- 3. Reginaldo -->
+          <div class="leaderboard-item">
+            <span class="ranking-position">3</span>
+            <img class="foto-vendedor" src="fotos/Reginaldo.png" alt="Reginaldo" />
+            <div class="info-vendedor">
+              <span class="nome-vendedor">Reginaldo</span>
+              <div class="progress-bar">
+                <!-- 60% da meta -->
+                <div
+                  class="progress"
+                  style="width: 60%;"
+                  data-percent="60%"
+                ></div>
+              </div>
+              <span class="faturamento">Faturamento: R$ 15.000,00</span>
+              <span class="ticket-medio">Ticket Médio: R$ 136</span>
+            </div>
+          </div>
+
+          <!-- 4. Samuel -->
+          <div class="leaderboard-item">
+            <span class="ranking-position">4</span>
+            <img class="foto-vendedor" src="fotos/Samuel.jpg" alt="Samuel" />
+            <div class="info-vendedor">
+              <span class="nome-vendedor">Samuel</span>
+              <div class="progress-bar">
+                <!-- 40% da meta -->
+                <div
+                  class="progress"
+                  style="width: 40%;"
+                  data-percent="40%"
+                ></div>
+              </div>
+              <span class="faturamento">Faturamento: R$ 10.000,00</span>
+              <span class="ticket-medio">Ticket Médio: R$ 100</span>
+            </div>
+          </div>
+
+          <!-- 5. Pedro -->
+          <div class="leaderboard-item">
+            <span class="ranking-position">5</span>
+            <img class="foto-vendedor" src="fotos/Pedro.jpg" alt="Pedro" />
+            <div class="info-vendedor">
+              <span class="nome-vendedor">Pedro</span>
+              <div class="progress-bar">
+                <!-- 36% da meta -->
+                <div
+                  class="progress"
+                  style="width: 36%;"
+                  data-percent="36%"
+                ></div>
+              </div>
+              <span class="faturamento">Faturamento: R$ 8.000,00</span>
+              <span class="ticket-medio">Ticket Médio: R$ 150</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- MODAL DE VENDAS -->
+    <div id="modal-sales" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3 id="sales-title"></h3>
+        <table id="sales-table">
+          <thead>
+            <tr>
+              <th>Email do comprador</th>
+              <th>Data e Hora</th>
+              <th>Valor da Venda</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Linhas geradas dinamicamente pelo JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FOOTER (opcional) -->
+    <footer class="ranking-footer">
+      <p>Ranking atualizado em tempo real</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <script src="script.js"></script>
+  </body>
+</html>
