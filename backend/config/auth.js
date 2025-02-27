@@ -5,7 +5,7 @@ const path = require('path');
 // Usando uma conta de serviço (recomendado para produção)
 // Ajuste o caminho para apontar para o arquivo de credenciais correto
 const auth = new GoogleAuth({
-  keyFile: path.join(__dirname, '../../credentials.json'), // Ajustando o path para o arquivo na raiz
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || path.join(__dirname, '../../credentials.json'),
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
