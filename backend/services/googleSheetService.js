@@ -3,7 +3,15 @@ const { google } = require('googleapis');
 const auth = require('../config/auth');
 
 // ID da sua planilha do Google
-const spreadsheetId = '1L-BNb1b-3NzR8RZ7ju0sfbXP0elkY3w4WQHXKI8_2BI';
+const spreadsheetId = process.env.SPREADSHEET_ID || '1L-BNb1b-3NzR8RZ7ju0sfbXP0elkY3w4WQHXKI8_2BI';
+
+// Função para formatar valores monetários com ponto como separador de milhar
+function formatarDinheiro(valor) {
+  return valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
 
 // Funções auxiliares para calcular métricas
 const calcularTicketMedio = (faturamento, quantidadeVendas) => {
@@ -32,7 +40,11 @@ exports.getRankingData = async () => {
     
     // Agrupar vendas por vendedor
     rows.forEach(row => {
+      if (!row || row.length < 5) return; // Pula linhas vazias ou incompletas
+      
       const [data, email, vendedor, produto, valor] = row;
+      
+      if (!vendedor) return; // Pula se não tiver vendedor
       
       if (!vendedores[vendedor]) {
         vendedores[vendedor] = {
@@ -44,7 +56,20 @@ exports.getRankingData = async () => {
       }
       
       // Remove símbolos e converte para número
-      const valorNumerico = parseFloat(valor.replace('R$', '').replace('.', '').replace(',', '.').trim());
+      // Formato esperado: "R$ X.XXX,XX"
+      const valorString = valor.toString();
+      const valorNumerico = parseFloat(
+        valorString
+          .replace(/R\$\s?/i, '')
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .trim()
+      );
+      
+      if (isNaN(valorNumerico)) {
+        console.warn(`Valor inválido encontrado: ${valor}`);
+        return;
+      }
       
       vendedores[vendedor].faturamento += valorNumerico;
       vendedores[vendedor].vendas += 1;
@@ -52,7 +77,7 @@ exports.getRankingData = async () => {
         data,
         email,
         produto,
-        valor: `R$ ${valorNumerico.toFixed(2).replace('.', ',')}`
+        valor: valorString
       });
     });
     
@@ -61,7 +86,10 @@ exports.getRankingData = async () => {
     rankingArray.forEach(vendedor => {
       vendedor.ticketMedio = calcularTicketMedio(vendedor.faturamento, vendedor.vendas);
       vendedor.percentualMeta = calcularPercentualMeta(vendedor.faturamento);
-      vendedor.faturamentoFormatado = `R$ ${vendedor.faturamento.toFixed(2).replace('.', ',')}`;
+      
+      // Formatar valores monetários com pontos como separadores de milhar
+      vendedor.faturamentoFormatado = `R$ ${formatarDinheiro(vendedor.faturamento)}`;
+      vendedor.ticketMedioFormatado = `R$ ${formatarDinheiro(vendedor.ticketMedio)}`;
     });
     
     // Ordenar por faturamento (decrescente)
@@ -71,10 +99,16 @@ exports.getRankingData = async () => {
     const totalTime = rankingArray.reduce((acc, curr) => acc + curr.faturamento, 0);
     const totalPodium = rankingArray.slice(0, 3).reduce((acc, curr) => acc + curr.faturamento, 0);
     
+    console.log('Dados processados com sucesso:', {
+      totalVendedores: rankingArray.length,
+      totalTime,
+      totalPodium
+    });
+    
     return {
       ranking: rankingArray,
-      totalTime: `R$ ${totalTime.toFixed(2).replace('.', ',')}`,
-      totalPodium: `R$ ${totalPodium.toFixed(2).replace('.', ',')}`
+      totalTime: `R$ ${formatarDinheiro(totalTime)}`,
+      totalPodium: `R$ ${formatarDinheiro(totalPodium)}`
     };
   } catch (error) {
     console.error('Erro ao buscar dados da planilha:', error);
@@ -96,7 +130,7 @@ exports.getVendedorSales = async (nomeVendedor) => {
     
     // Filtrar apenas as vendas do vendedor solicitado
     const vendasVendedor = rows
-      .filter(row => row[2] === nomeVendedor) // Posição do nome do vendedor
+      .filter(row => row && row.length >= 5 && row[2] === nomeVendedor) // Posição do nome do vendedor
       .map(row => {
         const [data, email, vendedor, produto, valor] = row;
         return {
@@ -106,6 +140,7 @@ exports.getVendedorSales = async (nomeVendedor) => {
         };
       });
     
+    console.log(`Encontradas ${vendasVendedor.length} vendas para ${nomeVendedor}`);
     return vendasVendedor;
   } catch (error) {
     console.error(`Erro ao buscar vendas do vendedor ${nomeVendedor}:`, error);

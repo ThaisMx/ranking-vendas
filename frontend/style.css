@@ -58,6 +58,7 @@ body::before {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2.5rem;
   background: linear-gradient(135deg, #2B5AE1, #6925D2);
+  background-clip: text;           /* Adicione esta linha */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 2px;
@@ -440,4 +441,82 @@ main {
   .header-content h1 {
     font-size: 2rem;
   }
+}
+
+/* Estilos para notificações de novas vendas */
+.sale-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #2B5AE1;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.sale-notification .notification-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sale-notification .bell-icon {
+  width: 24px;
+  height: 24px;
+  animation: ring 1s ease-in-out;
+}
+
+@keyframes ring {
+  0% {
+    transform: rotate(0);
+  }
+  5% {
+    transform: rotate(15deg);
+  }
+  10% {
+    transform: rotate(-15deg);
+  }
+  15% {
+    transform: rotate(15deg);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  30% {
+    transform: rotate(-15deg);
+  }
+  35% {
+    transform: rotate(15deg);
+  }
+  40% {
+    transform: rotate(-15deg);
+  }
+  45% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+/* Destacar nova venda na lista - opcional */
+@keyframes highlight {
+  0% {
+    background-color: rgba(105, 37, 210, 0.5);
+  }
+  100% {
+    background-color: rgba(43, 90, 225, 0.1);
+  }
+}
+
+.leaderboard-item.new-sale {
+  animation: highlight 2s ease-out;
 }
