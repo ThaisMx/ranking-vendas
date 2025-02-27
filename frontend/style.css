@@ -162,13 +162,13 @@ main {
 
 .second-place {
   background: linear-gradient(135deg, #2B5AE1, #4B7BE8);
-  height: 350px;
+  height: 360px;
   order: 1;
 }
 
 .third-place {
   background: linear-gradient(135deg, #6925D2, #8A4DE8);
-  height: 330px; /* Ajuste para não cortar conteúdo */
+  height: 350px; /* Ajuste para não cortar conteúdo */
   order: 3;
 }
 
@@ -519,4 +519,57 @@ main {
 
 .leaderboard-item.new-sale {
   animation: highlight 2s ease-out;
+}
+
+/* Estilos adicionais para o novo vendedor */
+.featured-vendor {
+  position: relative;
+}
+
+.featured-vendor::before {
+  content: 'Novo';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #2B5AE1, #6925D2);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  animation: pulse-badge 2s infinite;
+  z-index: 5;
+}
+
+@keyframes pulse-badge {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(43, 90, 225, 0.4);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 8px rgba(43, 90, 225, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(43, 90, 225, 0);
+  }
+}
+
+/* Animação sutil para novos itens */
+.featured-vendor .progress-bar .progress {
+  background: linear-gradient(135deg, #2B5AE1, #6925D2, #2B5AE1);
+  background-size: 200% 100%;
+  animation: gradient-move 3s ease infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

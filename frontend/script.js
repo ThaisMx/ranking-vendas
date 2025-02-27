@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   // URL do backend (altere para seu endereço real quando implantar)
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = '/api';
+  
+  // Lista de vendedores conhecidos (opcional, apenas para garantir compatibilidade com imagens)
+  const KNOWN_VENDORS = ['Gabriela', 'Robert', 'Reginaldo', 'Samuel', 'Pedro', 'João Syrio'];
   
   // Armazenar estado anterior das vendas para comparação
   let previousSalesData = null;
@@ -235,6 +238,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const item = document.createElement('div');
       item.className = 'leaderboard-item';
       item.dataset.vendedor = vendedor.nome;
+      
+      // Destacar João Syrio com uma animação sutil (opcional)
+      if (vendedor.nome === 'João Syrio') {
+        item.classList.add('featured-vendor');
+      }
       
       item.innerHTML = `
         <span class="ranking-position">${index + 1}</span>

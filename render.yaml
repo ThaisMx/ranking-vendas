@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ranking-vendas
+    env: node
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SPREADSHEET_ID
+        value: 1L-BNb1b-3NzR8RZ7ju0sfbXP0elkY3w4WQHXKI8_2BI
+    autoDeploy: true
