@@ -150,28 +150,38 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('total-time').textContent = totalTime;
     document.getElementById('total-top3').textContent = totalPodium;
     
-    // Atualizar pódio se tiver pelo menos 3 vendedores
-    if (ranking.length >= 3) {
-      updatePodium(ranking[0], ranking[1], ranking[2]);
-    } else if (ranking.length > 0) {
-      // Se não tiver 3 vendedores, exibe os disponíveis
+    // Verificar se há vendedores com vendas
+    const vendedoresComVendas = ranking.filter(vendedor => vendedor.vendas > 0);
+    
+    if (vendedoresComVendas.length > 0) {
+      // Se há pelo menos 1 vendedor com vendas
       const defaultVendedor = {
         nome: "Sem dados",
         faturamentoFormatado: "R$ 0,00",
         vendas: 0
       };
       
+      // Atualizar pódio
       updatePodium(
-        ranking[0], 
-        ranking.length > 1 ? ranking[1] : defaultVendedor, 
-        ranking.length > 2 ? ranking[2] : defaultVendedor
+        vendedoresComVendas.length > 0 ? vendedoresComVendas[0] : defaultVendedor,
+        vendedoresComVendas.length > 1 ? vendedoresComVendas[1] : defaultVendedor,
+        vendedoresComVendas.length > 2 ? vendedoresComVendas[2] : defaultVendedor
       );
+    } else {
+      // Se não há nenhum vendedor com vendas, mostrar pódio zerado
+      const emptyVendedor = {
+        nome: "Sem vendas",
+        faturamentoFormatado: "R$ 0,00",
+        vendas: 0
+      };
+      
+      updatePodium(emptyVendedor, emptyVendedor, emptyVendedor);
     }
     
     // Atualizar lista geral
     updateLeaderboardList(ranking);
   }
-
+  
   function updatePodium(first, second, third) {
     // Primeiro lugar
     document.querySelector('.first-place h2').textContent = first.nome;
@@ -194,10 +204,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.third-place .score:nth-of-type(2)').textContent = 
       `Vendas: ${third.vendas}`;
     
-    // Atualizar imagens do pódio se disponíveis
-    updateAvatarImage('.first-place .avatar img', first.nome);
-    updateAvatarImage('.second-place .avatar img', second.nome);
-    updateAvatarImage('.third-place .avatar img', third.nome);
+    // Atualizar imagens do pódio - usar imagem default quando não há vendas
+    if (first.vendas > 0) {
+      updateAvatarImage('.first-place .avatar img', first.nome);
+    } else {
+      document.querySelector('.first-place .avatar img').src = 'fotos/default.jpg';
+    }
+    
+    if (second.vendas > 0) {
+      updateAvatarImage('.second-place .avatar img', second.nome);
+    } else {
+      document.querySelector('.second-place .avatar img').src = 'fotos/default.jpg';
+    }
+    
+    if (third.vendas > 0) {
+      updateAvatarImage('.third-place .avatar img', third.nome);
+    } else {
+      document.querySelector('.third-place .avatar img').src = 'fotos/default.jpg';
+    }
   }
   
   function updateAvatarImage(selector, nome) {
@@ -229,11 +253,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const leaderboardSection = document.querySelector('.leaderboard-section');
     const leaderboardTitle = leaderboardSection.querySelector('.leaderboard-title');
     
-    // Limpar lista existente, mantendo apenas o título
+    // Limpar seção mantendo apenas o título
     leaderboardSection.innerHTML = '';
     leaderboardSection.appendChild(leaderboardTitle);
     
-    // Criar itens para cada vendedor
+    // Criar container com rolagem para a lista
+    const listContainer = document.createElement('div');
+    listContainer.className = 'leaderboard-list-container';
+    leaderboardSection.appendChild(listContainer);
+    
+    // Verificar se há vendedores na lista
+    if (ranking.length === 0) {
+      // Se não há vendedores, mostrar mensagem
+      const emptyMessage = document.createElement('div');
+      emptyMessage.className = 'empty-message';
+      emptyMessage.textContent = 'Não há vendas registradas para o período atual.';
+      emptyMessage.style.textAlign = 'center';
+      emptyMessage.style.padding = '2rem';
+      emptyMessage.style.color = 'var(--text-secondary)';
+      emptyMessage.style.fontStyle = 'italic';
+      
+      listContainer.appendChild(emptyMessage);
+      return;
+    }
+    
+    // Se houver vendedores, criar os itens normalmente
     ranking.forEach((vendedor, index) => {
       const item = document.createElement('div');
       item.className = 'leaderboard-item';
@@ -262,7 +306,8 @@ document.addEventListener("DOMContentLoaded", () => {
         abrirModalVendas(vendedor.nome);
       });
       
-      leaderboardSection.appendChild(item);
+      // Adicionar ao container com rolagem
+      listContainer.appendChild(item);
       
       // Tentar carregar a foto com diferentes extensões
       const imgElement = item.querySelector('.foto-vendedor');
@@ -273,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================
   // SEÇÃO: CONTAGEM REGRESSIVA
   // ======================
-  const targetDate = new Date("2025-02-28T23:59:59");
+  const targetDate = new Date("2025-03-31T23:59:59");
   const countdownEl = document.getElementById("countdown");
 
   function updateCountdown() {
@@ -308,64 +353,93 @@ document.addEventListener("DOMContentLoaded", () => {
   const salesTitle = document.getElementById("sales-title");
   const salesTableBody = document.querySelector("#sales-table tbody");
 
-  async function abrirModalVendas(nome) {
-    try {
-      // Define o título do modal
-      salesTitle.textContent = `Vendas de ${nome}`;
-      
-      // Limpa o corpo da tabela
-      salesTableBody.innerHTML = "";
-      
-      // Mostra um indicador de carregamento
-      salesTableBody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>";
-      
-      // Exibe o modal (antes da busca para melhor experiência)
-      modal.style.display = "block";
-      
-      // Busca vendas do backend
-      const response = await fetch(`${API_URL}/sales/details/${nome}`);
-      
-      if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+  // Modificação da função abrirModalVendas para melhorar a responsividade
+async function abrirModalVendas(nome) {
+  try {
+    // Define o título do modal
+    salesTitle.textContent = `Vendas de ${nome}`;
+    
+    // Limpa o corpo da tabela
+    salesTableBody.innerHTML = "";
+    
+    // Mostra um indicador de carregamento
+    salesTableBody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>";
+    
+    // Detecta se está em dispositivo móvel (tela pequena)
+    const isMobile = window.innerWidth <= 480;
+    
+    // Ajusta cabeçalho da tabela para dispositivos móveis
+    const tableHeaders = document.querySelectorAll('#sales-table th');
+    if (tableHeaders.length > 0) {
+      // Em telas muito pequenas, simplifica os cabeçalhos
+      if (isMobile) {
+        tableHeaders[0].style.display = 'none'; // Esconde cabeçalho de email
+        tableHeaders[1].textContent = 'Data'; // Encurta o texto
+        tableHeaders[2].textContent = 'Valor'; // Encurta o texto
+      } else {
+        tableHeaders[0].style.display = ''; // Mostra todos os cabeçalhos
+        tableHeaders[1].textContent = 'Data e Hora'; // Texto original
+        tableHeaders[2].textContent = 'Valor da Venda'; // Texto original
       }
-      
-      const vendas = await response.json();
-      
-      // Limpa mensagem de carregamento
-      salesTableBody.innerHTML = "";
-      
-      if (vendas.length === 0) {
-        salesTableBody.innerHTML = "<tr><td colspan='3'>Nenhuma venda encontrada</td></tr>";
-        return;
-      }
-      
-      // Cria uma linha de tabela para cada venda
-      vendas.forEach(venda => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${venda.email || 'N/A'}</td>
-          <td>${venda.dataHora || 'N/A'}</td>
-          <td>${venda.valor || 'R$ 0,00'}</td>
-        `;
-        salesTableBody.appendChild(row);
-      });
-    } catch (error) {
-      console.error(`Erro ao buscar vendas de ${nome}:`, error);
-      salesTableBody.innerHTML = `<tr><td colspan='3'>Erro ao carregar vendas: ${error.message}</td></tr>`;
     }
+    
+    // Exibe o modal (antes da busca para melhor experiência)
+    modal.style.display = "block";
+    
+    // Busca vendas do backend
+    const response = await fetch(`${API_URL}/sales/details/${nome}`);
+    
+    if (!response.ok) {
+      throw new Error(`Erro ${response.status}: ${response.statusText}`);
+    }
+    
+    const vendas = await response.json();
+    
+    // Limpa mensagem de carregamento
+    salesTableBody.innerHTML = "";
+    
+    if (vendas.length === 0) {
+      salesTableBody.innerHTML = "<tr><td colspan='3'>Nenhuma venda encontrada</td></tr>";
+      return;
+    }
+    
+    // Cria uma linha de tabela para cada venda
+    vendas.forEach(venda => {
+      const row = document.createElement("tr");
+      
+      // Formata a data para exibição (mais curta em dispositivos móveis)
+      let dataExibicao = venda.dataHora || 'N/A';
+      if (isMobile && dataExibicao !== 'N/A') {
+        // Se tiver formato DD/MM/AAAA, simplifica
+        if (dataExibicao.includes('/')) {
+          const partes = dataExibicao.split(' '); // Separa data da hora, se houver
+          if (partes.length > 0) {
+            dataExibicao = partes[0]; // Mantém apenas a data
+          }
+        }
+      }
+      
+      row.innerHTML = `
+        <td class="email-cell">${venda.email || 'N/A'}</td>
+        <td>${dataExibicao}</td>
+        <td>${venda.valor || 'R$ 0,00'}</td>
+      `;
+      
+      // Em telas muito pequenas, oculta a célula de email
+      if (isMobile) {
+        const emailCell = row.querySelector('.email-cell');
+        if (emailCell) {
+          emailCell.style.display = 'none';
+        }
+      }
+      
+      salesTableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error(`Erro ao buscar vendas de ${nome}:`, error);
+    salesTableBody.innerHTML = `<tr><td colspan='3'>Erro ao carregar vendas: ${error.message}</td></tr>`;
   }
-
-  // Fecha o modal ao clicar no botão "x"
-  closeModalBtn.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  // Fecha o modal se o usuário clicar fora do conteúdo do modal
-  window.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
-  });
+}
   
   // Adicionar um botão para teste do som (opcional, pode ser removido em produção)
   const addTestButton = () => {
