@@ -283,10 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
       item.className = 'leaderboard-item';
       item.dataset.vendedor = vendedor.nome;
       
-      // Destacar João Syrio com uma animação sutil (opcional)
-      if (vendedor.nome === 'João Syrio') {
-        item.classList.add('featured-vendor');
-      }
+      // Removido o código que destacava João Syrio com uma tag "Novo"
+      // Agora todos os vendedores serão exibidos igualmente
       
       item.innerHTML = `
         <span class="ranking-position">${index + 1}</span>
@@ -353,93 +351,105 @@ document.addEventListener("DOMContentLoaded", () => {
   const salesTitle = document.getElementById("sales-title");
   const salesTableBody = document.querySelector("#sales-table tbody");
 
-  // Modificação da função abrirModalVendas para melhorar a responsividade
-async function abrirModalVendas(nome) {
-  try {
-    // Define o título do modal
-    salesTitle.textContent = `Vendas de ${nome}`;
-    
-    // Limpa o corpo da tabela
-    salesTableBody.innerHTML = "";
-    
-    // Mostra um indicador de carregamento
-    salesTableBody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>";
-    
-    // Detecta se está em dispositivo móvel (tela pequena)
-    const isMobile = window.innerWidth <= 480;
-    
-    // Ajusta cabeçalho da tabela para dispositivos móveis
-    const tableHeaders = document.querySelectorAll('#sales-table th');
-    if (tableHeaders.length > 0) {
-      // Em telas muito pequenas, simplifica os cabeçalhos
-      if (isMobile) {
-        tableHeaders[0].style.display = 'none'; // Esconde cabeçalho de email
-        tableHeaders[1].textContent = 'Data'; // Encurta o texto
-        tableHeaders[2].textContent = 'Valor'; // Encurta o texto
-      } else {
-        tableHeaders[0].style.display = ''; // Mostra todos os cabeçalhos
-        tableHeaders[1].textContent = 'Data e Hora'; // Texto original
-        tableHeaders[2].textContent = 'Valor da Venda'; // Texto original
-      }
+  // Adicionar event listener para fechar o modal quando clicar no X
+  closeModalBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Adicionar event listener para fechar o modal quando clicar fora do conteúdo
+  window.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.style.display = "none";
     }
-    
-    // Exibe o modal (antes da busca para melhor experiência)
-    modal.style.display = "block";
-    
-    // Busca vendas do backend
-    const response = await fetch(`${API_URL}/sales/details/${nome}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`);
-    }
-    
-    const vendas = await response.json();
-    
-    // Limpa mensagem de carregamento
-    salesTableBody.innerHTML = "";
-    
-    if (vendas.length === 0) {
-      salesTableBody.innerHTML = "<tr><td colspan='3'>Nenhuma venda encontrada</td></tr>";
-      return;
-    }
-    
-    // Cria uma linha de tabela para cada venda
-    vendas.forEach(venda => {
-      const row = document.createElement("tr");
+  });
+
+  // Função para abrir o modal de vendas do vendedor
+  async function abrirModalVendas(nome) {
+    try {
+      // Define o título do modal
+      salesTitle.textContent = `Vendas de ${nome}`;
       
-      // Formata a data para exibição (mais curta em dispositivos móveis)
-      let dataExibicao = venda.dataHora || 'N/A';
-      if (isMobile && dataExibicao !== 'N/A') {
-        // Se tiver formato DD/MM/AAAA, simplifica
-        if (dataExibicao.includes('/')) {
-          const partes = dataExibicao.split(' '); // Separa data da hora, se houver
-          if (partes.length > 0) {
-            dataExibicao = partes[0]; // Mantém apenas a data
+      // Limpa o corpo da tabela
+      salesTableBody.innerHTML = "";
+      
+      // Mostra um indicador de carregamento
+      salesTableBody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>";
+      
+      // Detecta se está em dispositivo móvel (tela pequena)
+      const isMobile = window.innerWidth <= 480;
+      
+      // Ajusta cabeçalho da tabela para dispositivos móveis
+      const tableHeaders = document.querySelectorAll('#sales-table th');
+      if (tableHeaders.length > 0) {
+        // Em telas muito pequenas, simplifica os cabeçalhos
+        if (isMobile) {
+          tableHeaders[0].style.display = 'none'; // Esconde cabeçalho de email
+          tableHeaders[1].textContent = 'Data'; // Encurta o texto
+          tableHeaders[2].textContent = 'Valor'; // Encurta o texto
+        } else {
+          tableHeaders[0].style.display = ''; // Mostra todos os cabeçalhos
+          tableHeaders[1].textContent = 'Data e Hora'; // Texto original
+          tableHeaders[2].textContent = 'Valor da Venda'; // Texto original
+        }
+      }
+      
+      // Exibe o modal (antes da busca para melhor experiência)
+      modal.style.display = "block";
+      
+      // Busca vendas do backend
+      const response = await fetch(`${API_URL}/sales/details/${nome}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      }
+      
+      const vendas = await response.json();
+      
+      // Limpa mensagem de carregamento
+      salesTableBody.innerHTML = "";
+      
+      if (vendas.length === 0) {
+        salesTableBody.innerHTML = "<tr><td colspan='3'>Nenhuma venda encontrada</td></tr>";
+        return;
+      }
+      
+      // Cria uma linha de tabela para cada venda
+      vendas.forEach(venda => {
+        const row = document.createElement("tr");
+        
+        // Formata a data para exibição (mais curta em dispositivos móveis)
+        let dataExibicao = venda.dataHora || 'N/A';
+        if (isMobile && dataExibicao !== 'N/A') {
+          // Se tiver formato DD/MM/AAAA, simplifica
+          if (dataExibicao.includes('/')) {
+            const partes = dataExibicao.split(' '); // Separa data da hora, se houver
+            if (partes.length > 0) {
+              dataExibicao = partes[0]; // Mantém apenas a data
+            }
           }
         }
-      }
-      
-      row.innerHTML = `
-        <td class="email-cell">${venda.email || 'N/A'}</td>
-        <td>${dataExibicao}</td>
-        <td>${venda.valor || 'R$ 0,00'}</td>
-      `;
-      
-      // Em telas muito pequenas, oculta a célula de email
-      if (isMobile) {
-        const emailCell = row.querySelector('.email-cell');
-        if (emailCell) {
-          emailCell.style.display = 'none';
+        
+        row.innerHTML = `
+          <td class="email-cell">${venda.email || 'N/A'}</td>
+          <td>${dataExibicao}</td>
+          <td>${venda.valor || 'R$ 0,00'}</td>
+        `;
+        
+        // Em telas muito pequenas, oculta a célula de email
+        if (isMobile) {
+          const emailCell = row.querySelector('.email-cell');
+          if (emailCell) {
+            emailCell.style.display = 'none';
+          }
         }
-      }
-      
-      salesTableBody.appendChild(row);
-    });
-  } catch (error) {
-    console.error(`Erro ao buscar vendas de ${nome}:`, error);
-    salesTableBody.innerHTML = `<tr><td colspan='3'>Erro ao carregar vendas: ${error.message}</td></tr>`;
+        
+        salesTableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error(`Erro ao buscar vendas de ${nome}:`, error);
+      salesTableBody.innerHTML = `<tr><td colspan='3'>Erro ao carregar vendas: ${error.message}</td></tr>`;
+    }
   }
-}
   
   // Adicionar um botão para teste do som (opcional, pode ser removido em produção)
   const addTestButton = () => {
