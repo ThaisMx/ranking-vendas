@@ -18,7 +18,7 @@ const calcularTicketMedio = (faturamento, quantidadeVendas) => {
   return quantidadeVendas > 0 ? Math.round(faturamento / quantidadeVendas) : 0;
 };
 
-// Percentual da meta (supondo meta de R$ 25.000,00)
+// Percentual da meta (supondo meta de R$ 100.000,00)
 const calcularPercentualMeta = (faturamento, meta = 100000) => {
   return Math.min(Math.round((faturamento / meta) * 100), 100);
 };
